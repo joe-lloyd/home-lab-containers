@@ -1,0 +1,109 @@
+version: '3.8'
+services:
+  wazuh-manager:
+    image: wazuh/wazuh-manager:4.8.0
+    hostname: wazuh-manager
+    restart: unless-stopped
+    environment:
+      - INDEXER_URL=https://wazuh-indexer:9200
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=${INDEXER_PASSWORD}
+      - FILEBEAT_SSL_VERIFICATION_MODE=full
+      - API_USERNAME=wazuh-api-user
+      - API_PASSWORD=${API_PASSWORD}
+    volumes:
+      - wazuh_manager_api_configuration:/var/ossec/api/configuration
+      - wazuh_manager_etc:/var/ossec/etc
+      - wazuh_manager_logs:/var/ossec/logs
+      - wazuh_manager_queue:/var/ossec/queue
+      - wazuh_manager_var_multigroups:/var/ossec/var/multigroups
+      - wazuh_manager_integrations:/var/ossec/integrations
+      - wazuh_manager_active_response:/var/ossec/active-response
+      - wazuh_manager_agentless:/var/ossec/agentless
+      - wazuh_manager_wodles:/var/ossec/wodles
+    ports:
+      - "1514:1514"
+      - "1515:1515"
+      - "1516:1516"
+      - "514:514/udp"
+    networks:
+      - homelab-net
+    depends_on:
+      - wazuh-indexer
+
+  wazuh-indexer:
+    image: wazuh/wazuh-indexer:4.8.0
+    hostname: wazuh-indexer
+    restart: unless-stopped
+    environment:
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${INDEXER_PASSWORD}
+    volumes:
+      - wazuh_indexer_data:/var/lib/wazuh-indexer
+      - wazuh_indexer_config:/usr/share/wazuh-indexer/config
+      - wazuh_indexer_security:/usr/share/wazuh-indexer/plugins/opensearch-security
+    ports:
+      - "9200:9200"
+    networks:
+      - homelab-net
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  wazuh-dashboard:
+    image: wazuh/wazuh-dashboard:4.8.0
+    hostname: wazuh-dashboard
+    restart: unless-stopped
+    environment:
+      - DASHBOARD_HOST=0.0.0.0
+      - INDEXER_URL=https://wazuh-indexer:9200
+      - DASHBOARD_USERNAME=admin
+      - DASHBOARD_PASSWORD=${DASHBOARD_PASSWORD}
+      - OPENSEARCH_USERNAME=admin
+      - OPENSEARCH_PASSWORD=${INDEXER_PASSWORD}
+    volumes:
+      - wazuh_dashboard_config:/usr/share/wazuh-dashboard/data/wazuh/config
+      - wazuh_dashboard_data:/usr/share/wazuh-dashboard/data
+    ports:
+      - "443:5601"
+    networks:
+      - homelab-net
+    depends_on:
+      - wazuh-indexer
+
+volumes:
+  wazuh_manager_api_configuration:
+    driver: local
+  wazuh_manager_etc:
+    driver: local
+  wazuh_manager_logs:
+    driver: local
+  wazuh_manager_queue:
+    driver: local
+  wazuh_manager_var_multigroups:
+    driver: local
+  wazuh_manager_integrations:
+    driver: local
+  wazuh_manager_active_response:
+    driver: local
+  wazuh_manager_agentless:
+    driver: local
+  wazuh_manager_wodles:
+    driver: local
+  wazuh_indexer_data:
+    driver: local
+  wazuh_indexer_config:
+    driver: local
+  wazuh_indexer_security:
+    driver: local
+  wazuh_dashboard_config:
+    driver: local
+  wazuh_dashboard_data:
+    driver: local
+
+networks:
+  homelab-net:
+    external: true

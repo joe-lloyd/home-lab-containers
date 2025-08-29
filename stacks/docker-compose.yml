@@ -1,0 +1,14 @@
+version: '3.8'
+
+networks:
+  homelab-net:
+    name: homelab-net
+    driver: bridge
+
+# Include all your stacks
+include:
+  - stacks/networking/cloudflare-tunnel/docker-compose.yml
+  - stacks/networking/pihole/docker-compose.yml
+  - stacks/media/jellyfin/docker-compose.yml
+  - stacks/productivity/n8n/docker-compose.yml
+  - stacks/productivity/obsidian/docker-compose.yml
