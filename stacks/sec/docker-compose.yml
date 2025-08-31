@@ -28,22 +28,30 @@ services:
     depends_on:
       - loki
 
-promtail:
-  image: grafana/promtail:2.9.4
-  container_name: promtail
-  restart: unless-stopped
-  volumes:
-    - /var/log:/var/log:ro
-    - /var/lib/docker/containers:/var/lib/docker/containers:ro
-    - /var/run/docker.sock:/var/run/docker.sock:ro
-  command: -config.file=/etc/promtail/config.yml
-  configs:
-    - source: promtail_config
-      target: /etc/promtail/config.yml
-  networks:
-    - homelab-net
-  depends_on:
-    - loki
+  promtail:
+    image: grafana/promtail:2.9.4
+    container_name: promtail
+    restart: unless-stopped
+    volumes:
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yml
+    configs:
+      - source: promtail_config
+        target: /etc/promtail/config.yml
+    networks:
+      - homelab-net
+    depends_on:
+      - loki
+
+volumes:
+  grafana_data:
+    driver: local
+
+networks:
+  homelab-net:
+    external: true
 
 # Add this configs section at the bottom with your volumes and networks:
 configs:
@@ -67,38 +75,3 @@ configs:
               labels:
                 job: system
                 __path__: /var/log/*.log
-                __path__: /var/log/**/*.log
-
-        - job_name: docker
-          static_configs:
-            - targets:
-                - localhost
-              labels:
-                job: docker
-                __path__: /var/lib/docker/containers/*/*-json.log
-
-        - job_name: auth
-          static_configs:
-            - targets:
-                - localhost
-              labels:
-                job: auth
-                __path__: /var/log/auth.log
-
-        - job_name: tunnels
-          static_configs:
-            - targets:
-                - localhost
-              labels:
-                job: tunnels
-                __path__: /var/log/*tunnel*.log
-                __path__: /var/log/*vpn*.log
-                __path__: /var/log/*wireguard*.log
-
-volumes:
-  grafana_data:
-    driver: local
-
-networks:
-  homelab-net:
-    external: true
