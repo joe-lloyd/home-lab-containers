@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    pull_policy: never
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    restart: unless-stopped
+    environment:
+      - OLLAMA_NUM_GPU=1
+    networks:
+      openwebui-network:
+        aliases:
+          - ollama
+
+volumes:
+  ollama-data:
+
+networks:
+  openwebui-network:
+    external: true

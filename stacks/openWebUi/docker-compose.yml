@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:git-fe06656-cuda
+    pull_policy: never
+    container_name: openwebui
+    ports:
+      - "3000:8080"
+    volumes:
+      - openwebui-data:/app/backend/data
+      - ollama-data:/root/.ollama:ro
+    environment:
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
+      - ENABLE_SIGNUP=${ENABLE_SIGNUP}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    restart: unless-stopped
+    networks:
+      - openwebui-network
+    runtime: nvidia
+    gpus: all
+
+volumes:
+  openwebui-data:
+  ollama-data:
+    external: true
+    name: ollama-stack_ollama-data
+
+networks:
+  openwebui-network:
+    external: true
