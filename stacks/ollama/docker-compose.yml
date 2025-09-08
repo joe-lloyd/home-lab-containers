@@ -12,6 +12,9 @@ services:
     restart: unless-stopped
     environment:
       - OLLAMA_NUM_GPU=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    runtime: nvidia
     networks:
       openwebui-network:
         aliases:

@@ -1,0 +1,103 @@
+{
+  "name": "Server Power Control",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "server/shutdown"
+      },
+      "name": "Shutdown Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 100]
+    },
+    {
+      "parameters": {
+        "host": "http://192.168.2.34",
+        "port": 22,
+        "username": "joe",
+        "command": "sudo shutdown now"
+      },
+      "name": "SSH Shutdown",
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [500, 100]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "server/reboot"
+      },
+      "name": "Reboot Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "host": "http://192.168.2.34",
+        "port": 22,
+        "username": "joe",
+        "command": "sudo reboot"
+      },
+      "name": "SSH Reboot",
+      "type": "n8n-nodes-base.ssh",
+      "typeVersion": 1,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "server/wake"
+      },
+      "name": "Wake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 500]
+    },
+    {
+      "parameters": {
+        "command": "wakeonlan 4c:ed:fb:77:4f:ba"
+      },
+      "name": "Wake-on-LAN",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [500, 500]
+    }
+  ],
+  "connections": {
+    "Shutdown Webhook": {
+      "main": [
+        [
+          {
+            "node": "SSH Shutdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reboot Webhook": {
+      "main": [
+        [
+          {
+            "node": "SSH Reboot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Wake-on-LAN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
