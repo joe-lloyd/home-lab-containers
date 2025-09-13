@@ -2,16 +2,15 @@ version: '3.8'
 
 services:
   openwebui:
-    image: ghcr.io/open-webui/open-webui:git-fe06656-cuda
-    pull_policy: never
+    image: ghcr.io/open-webui/open-webui:cuda
     container_name: openwebui
     ports:
       - "3000:8080"
     volumes:
       - openwebui-data:/app/backend/data
-      - ollama-data:/root/.ollama:ro
+      - ollama-data:/root/.ollama
     environment:
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - OLLAMA_BASE_URL=http://ollama:11434
       - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY}
       - ENABLE_SIGNUP=${ENABLE_SIGNUP}
       - ADMIN_EMAIL=${ADMIN_EMAIL}

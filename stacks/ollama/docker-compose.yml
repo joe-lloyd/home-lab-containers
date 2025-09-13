@@ -3,18 +3,14 @@ version: '3.8'
 services:
   ollama:
     image: ollama/ollama:latest
-    pull_policy: never
     container_name: ollama
-    ports:
-      - "11434:11434"
     volumes:
       - ollama-data:/root/.ollama
-    restart: unless-stopped
     environment:
       - OLLAMA_NUM_GPU=1
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-    runtime: nvidia
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_GPU_MEMORY_FRACTION=0.9
+    restart: unless-stopped
     networks:
       openwebui-network:
         aliases:
