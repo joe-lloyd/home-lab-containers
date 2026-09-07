@@ -1,0 +1,18 @@
+services:
+  stable-diffusion:
+    image: ghcr.io/lllyasviel/fooocus:latest
+    ports:
+      - "7860:7860"
+    volumes:
+    - ./fooocus_data:/data
+    networks:
+      - openwebui-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+
+networks:
+  openwebui-network:
+    external: true
